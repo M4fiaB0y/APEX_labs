@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ApexCore API Documentation - Swagger UI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #0b0f19; font-family: 'Segoe UI', system-ui, sans-serif; color: #e2e8f0; }
+    .topbar { background: #070a13; padding: 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; }
+    .brand { font-size: 1.15rem; font-weight: 800; color: #22d3ee; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .back-btn { padding: 8px 16px; background: rgba(34,211,238,0.15); border: 1px solid rgba(34,211,238,0.3); color: #22d3ee; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.85rem; }
+    .back-btn:hover { background: rgba(34,211,238,0.25); }
+    .swagger-ui .topbar { display: none; }
+    .swagger-ui { filter: invert(88%) hue-rotate(180deg); max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+    .swagger-ui .info .title { color: #000; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/" class="brand">
+      <span>🛡️</span> ApexCore API Explorer (Swagger / OpenAPI 3.0)
+    </a>
+    <a href="/" class="back-btn">← Back to Lab Console</a>
+  </div>
+  <div id="swagger-ui"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-bundle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function() {
+      SwaggerUIBundle({
+        url: "/api/v1/openapi.json",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout"
+      });
+    };
+  </script>
+</body>
+</html>
+

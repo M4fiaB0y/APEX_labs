@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ApexCore Cyber Range – Examiner &amp; Instructor Portal</title>
+<style>
+  :root {
+    --bg: #090d16;
+    --surface: #0f172a;
+    --surface-card: #141e33;
+    --border: rgba(255, 255, 255, 0.08);
+    --primary: #0284c7;
+    --accent: #38bdf8;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --mono: "Cascadia Code", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .container { max-width: 1280px; margin: 0 auto; }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.25rem; color: #fff; }
+  .badge { background: rgba(56, 189, 248, 0.15); color: var(--accent); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; }
+  .btn {
+    cursor: pointer;
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-card);
+    color: var(--text-primary);
+    transition: 0.2s;
+  }
+  .btn:hover { background: #1e293b; border-color: var(--accent); }
+  .btn.danger { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #f87171; }
+  .btn.primary { background: var(--primary); color: #fff; border-color: transparent; }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+  .stat-card .val { font-size: 2rem; font-weight: 900; color: var(--accent); }
+  .stat-card .lbl { font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; background: var(--surface); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  th { background: rgba(2, 6, 23, 0.5); padding: 12px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: rgba(255, 255, 255, 0.02); }
+  .status-tag { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.78rem; }
+  .status-tag.captured { color: var(--success); }
+  .status-tag.pending { color: var(--text-muted); }
+  code { font-family: var(--mono); font-size: 0.82em; color: #a7f3d0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <div class="brand">
+        <span>🛡️</span> ApexCore Cyber Range – Examiner Console
+        <span class="badge">Instructor Private View</span>
+      </div>
+      <p style="font-size:0.84rem; color:var(--text-muted); margin-top:4px;">Candidate evaluation matrix for real-world API security assessments.</p>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <a href="/" class="btn">← Back to Candidate App</a>
+      <button class="btn danger" onclick="resetDatabase()">↺ Reset DB &amp; Scores</button>
+      <button class="btn primary" onclick="window.print()">🖨️ Print Evaluation Report</button>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="val" id="scoreVal">0 / 31</div>
+      <div class="lbl">Exploits Captured</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="pctVal">0%</div>
+      <div class="lbl">Completion Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="val">10</div>
+      <div class="lbl">OWASP 2023 Categories</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" style="color:var(--success);">ONLINE</div>
+      <div class="lbl">Range Health Status</div>
+    </div>
+  </div>
+
+  <h2 style="font-size:1.15rem; margin-bottom:14px; font-weight:700;">Challenge Audit &amp; Grading Sheet</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Category</th>
+        <th>Endpoint &amp; Method</th>
+        <th>Auditor Hint</th>
+        <th>Flag Status</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="matrixBody"></tbody>
+  </table>
+</div>
+
+<script>
+async function loadEvaluatorData() {
+  try {
+    const res = await fetch("/api/v1/evaluator/matrix");
+    const data = await res.json();
+    const challenges = data.challenges || [];
+    
+    document.getElementById("scoreVal").textContent = `${data.score} / ${data.total}`;
+    document.getElementById("pctVal").textContent = `${data.percentage}%`;
+
+    const tbody = document.getElementById("matrixBody");
+    tbody.innerHTML = challenges.map((c, i) => {
+      const flagDisplay = c.captured
+        ? `<code style="color:var(--success); font-weight:700;">${c.flag}</code>`
+        : `<code style="color:var(--text-muted);">${c.flag}</code>`;
+      const hintDisplay = c.hint
+        ? `<details><summary style="cursor:pointer; color:var(--accent); font-weight:600; font-size:0.78rem;">💡 Hint</summary><div style="font-size:0.78rem; color:var(--text-secondary); margin-top:4px; line-height:1.4;">${c.hint}</div></details>`
+        : `<span style="color:var(--text-muted); font-size:0.75rem;">—</span>`;
+      return `
+        <tr>
+          <td>#${i + 1}</td>
+          <td><b>${c.category}</b><br><small style="color:var(--text-muted)">${c.title} (CVSS ${c.cvss})</small></td>
+          <td><code>${c.endpoint}</code></td>
+          <td style="max-width:280px;">${hintDisplay}</td>
+          <td>${flagDisplay}</td>
+          <td>
+            <span class="status-tag ${c.captured ? 'captured' : 'pending'}">
+              ${c.captured ? '● CAPTURED' : '○ PENDING'}
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  } catch (e) {
+    console.error("Evaluator fetch failed:", e);
+  }
+}
+
+async function resetDatabase() {
+  if (!confirm("Are you sure? This will wipe the SQLite database, re-seed all accounts, and reset all candidate flags.")) return;
+  await fetch("/api/v1/system/reset-db", { method: "POST" });
+  alert("Database & candidate scores reset.");
+  loadEvaluatorData();
+}
+
+window.onload = loadEvaluatorData;
+</script>
+</body>
+</html>
+
