@@ -154,7 +154,6 @@ The automated shell script will:
   ```bash
   curl -s -X POST http://127.0.0.1:5000/api/v1/system/reset-instance
   ```
-- **Auditor Reproduction Manual:** For complete step-by-step exploit reproduction, curl commands, and payloads, consult [WALKTHROUGH.md](WALKTHROUGH.md) (*Internal assessors only*).
 
 ---
 
