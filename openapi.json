@@ -1,0 +1,187 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ApexCore FinTech & Cloud API Gateway",
+    "description": "Production-grade Banking, Payment, and Cloud microservices gateway API specification. Intended for internal engineering teams and authorized partner integrations.",
+    "version": "2.4.0-enterprise",
+    "contact": {
+      "name": "Apex Security Operations",
+      "email": "security@apexbank.local"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000",
+      "description": "Local Development & Pen-testing Gateway"
+    }
+  ],
+  "paths": {
+    "/api/v1/users/{uid}": {
+      "get": {
+        "summary": "Retrieve User Profile (BOLA Vulnerable)",
+        "parameters": [
+          { "name": "uid", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "User profile with PII" } }
+      }
+    },
+    "/api/v1/accounts/{account_num}/statement": {
+      "get": {
+        "summary": "Fetch Account Statement (BOLA Vulnerable)",
+        "parameters": [
+          { "name": "account_num", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Bank account balance and statement" } }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Authenticate User (User Enum & Brute-force)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "JWT Auth Token" } }
+      }
+    },
+    "/api/v1/auth/verify-jwt": {
+      "post": {
+        "summary": "Verify JWT Session (alg:none Vulnerable)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "token": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Verified claims" } }
+      }
+    },
+    "/api/v1/users/register": {
+      "post": {
+        "summary": "Register New Customer (Mass Assignment Vulnerable)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" },
+                  "role": { "type": "string" },
+                  "balance": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created user" } }
+      }
+    },
+    "/api/v1/graphql": {
+      "post": {
+        "summary": "GraphQL Gateway (Introspection & Batch DoS)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "query": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "GraphQL result" } }
+      }
+    },
+    "/api/v1/admin/export-database": {
+      "get": {
+        "summary": "Export Enterprise Database (BFLA Vulnerable)",
+        "responses": { "200": { "description": "Full database dump" } }
+      }
+    },
+    "/api/v1/store/checkout": {
+      "post": {
+        "summary": "Process Order Checkout (Negative Price Flow)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "items": { "type": "array" },
+                  "total": { "type": "number" },
+                  "user_id": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Checkout result" } }
+      }
+    },
+    "/api/v1/vouchers/redeem": {
+      "post": {
+        "summary": "Redeem Promo Voucher (Race Condition TOCTOU)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": { "type": "string" },
+                  "user_id": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Voucher credited" } }
+      }
+    },
+    "/api/v1/integrations/fetch-webhook": {
+      "get": {
+        "summary": "Integration Webhook Dispatcher (SSRF Vulnerable)",
+        "parameters": [
+          { "name": "url", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Fetched resource" } }
+      }
+    },
+    "/api/v1/transactions/search": {
+      "get": {
+        "summary": "Search Financial Audit Records (SQLi Vulnerable)",
+        "parameters": [
+          { "name": "q", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Matching transactions" } }
+      }
+    },
+    "/api/v1/invoice/xml": {
+      "post": {
+        "summary": "Import XML Billing Invoice (XXE Vulnerable)",
+        "requestBody": {
+          "content": {
+            "application/xml": {
+              "schema": { "type": "string" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Parsed invoice" } }
+      }
+    }
+  }
+}
+

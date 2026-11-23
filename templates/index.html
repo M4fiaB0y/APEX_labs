@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX – Enterprise Cyber &amp; Cryptographic Hardware Emporium</title>
+<!-- Modern Juice-Shop Caliber Storefront: High-End Tech Store Aesthetic -->
+<style>
+  :root {
+    --bg-main: #0b0f19;
+    --bg-card: #111827;
+    --bg-card-hover: #1f2937;
+    --bg-input: #030712;
+    --border: #374151;
+    --primary: #0284c7;
+    --primary-hover: #0369a1;
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.2);
+    --text-main: #f9fafb;
+    --text-muted: #9ca3af;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --radius: 10px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --mono: "Cascadia Code", "Fira Code", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: var(--font);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  code { font-family: var(--mono); font-size: 0.88em; }
+
+  /* Navigation Bar */
+  header {
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+  .brand-badge {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #0284c7, #38bdf8);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.1rem;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+  }
+  .search-bar {
+    flex: 1;
+    max-width: 580px;
+    position: relative;
+  }
+  .search-input {
+    width: 100%;
+    padding: 10px 16px 10px 42px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.84rem;
+    cursor: pointer;
+  }
+  .user-badge:hover { border-color: var(--accent); }
+  .cart-btn {
+    position: relative;
+    padding: 8px 16px;
+    background: var(--primary);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.86rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+  }
+  .cart-btn:hover { background: var(--primary-hover); }
+  .cart-count {
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+
+  /* Subheader Categories */
+  .subnav {
+    background: var(--bg-main);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 24px;
+  }
+  .subnav-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+  }
+  .cat-pill {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .cat-pill:hover, .cat-pill.active {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: var(--accent);
+    color: var(--text-main);
+  }
+
+  /* Hero Banner */
+  .hero-banner {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(17, 24, 39, 0.95));
+    border-bottom: 1px solid var(--border);
+    padding: 36px 24px;
+    text-align: center;
+  }
+  .hero-banner h1 {
+    font-size: 2.1rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .hero-banner p {
+    color: var(--text-muted);
+    font-size: 0.96rem;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+  .promo-tag {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 6px 16px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 999px;
+    color: var(--success);
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  /* Product Catalog Grid */
+  main {
+    flex: 1;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 30px 24px;
+  }
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 24px;
+  }
+  .product-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .product-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+  .product-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .product-cat {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .product-stock {
+    font-size: 0.75rem;
+    color: var(--success);
+    font-weight: 600;
+  }
+  .product-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.35;
+  }
+  .product-desc {
+    color: var(--text-muted);
+    font-size: 0.84rem;
+    margin-bottom: 16px;
+    min-height: 50px;
+    line-height: 1.45;
+  }
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--warning);
+    margin-bottom: 14px;
+  }
+  .product-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .product-price {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--text-main);
+  }
+  .btn-group { display: flex; gap: 8px; }
+  .btn {
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card-hover);
+    color: var(--text-main);
+    transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn.primary:hover { background: var(--primary-hover); }
+
+  /* Modals & Drawers */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 7, 18, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    max-width: 650px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 26px;
+  }
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .close-x {
+    cursor: pointer;
+    font-size: 1.4rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+  }
+  .close-x:hover { color: var(--text-main); }
+
+  /* Cart Slideout Drawer */
+  .drawer {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 440px;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border);
+    z-index: 300;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-items { flex: 1; overflow-y: auto; margin: 16px 0; }
+  .drawer-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .drawer-footer {
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Form Elements */
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+  .input, select, textarea {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.86rem;
+    outline: none;
+  }
+  .input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { font-family: var(--mono); font-size: 0.8rem; min-height: 80px; }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 999;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .toast.success { border-color: var(--success); color: var(--success); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 30px 24px;
+    background: var(--bg-card);
+    font-size: 0.84rem;
+    color: var(--text-muted);
+  }
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .footer-links a { color: var(--text-muted); }
+  .footer-links a:hover { color: var(--text-main); }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"><span>🔔</span> <span id="toastMsg">Notification</span></div>
+
+<header>
+  <div class="nav-container">
+    <div class="brand">
+      <div class="brand-badge">A</div>
+      <div>Apex<span style="color:var(--accent);">Mart</span></div>
+    </div>
+
+    <!-- Product Search Bar -->
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search security tokens, SDRs, hardware modules..." onkeyup="if(event.key==='Enter') executeSearch()">
+    </div>
+
+    <div class="nav-actions">
+      <div class="user-badge" onclick="openProfileModal()">
+        <span>👤</span>
+        <span id="navUsername">Alice Walker</span>
+        <span style="color:var(--success); font-weight:700;">($2,450.00)</span>
+      </div>
+
+      <button class="cart-btn" onclick="toggleCartDrawer()">
+        <span>🛒 Cart</span>
+        <span class="cart-count" id="cartCount">1</span>
+      </button>
+
+      <button class="btn" onclick="toggleFlagPortal()">🚩 Flag Portal</button>
+    </div>
+  </div>
+</header>
+
+<div class="subnav">
+  <div class="subnav-inner">
+    <div class="cat-pill active" onclick="filterCategory('All')">All Categories</div>
+    <div class="cat-pill" onclick="filterCategory('Security Hardware')">Security Hardware</div>
+    <div class="cat-pill" onclick="filterCategory('RF & Wireless')">RF &amp; Wireless</div>
+    <div class="cat-pill" onclick="filterCategory('Hardware Tools')">Hardware Tools</div>
+    <div class="cat-pill" onclick="filterCategory('Embedded Systems')">Embedded Systems</div>
+    <div class="cat-pill" onclick="filterCategory('Enterprise Infrastructure')">Enterprise Infrastructure</div>
+    <div class="cat-pill" onclick="filterCategory('Cold Storage')">Cold Storage</div>
+  </div>
+</div>
+
+<section class="hero-banner">
+  <h1>Next-Gen Cryptographic &amp; Security Hardware</h1>
+  <p>Official enterprise distributor for FIDO2 NFC keys, SDR peripherals, and hardware security modules.</p>
+  <div class="promo-tag">Cyber Hardware Week: Apply voucher APEXVIP500 for $500 store credit</div>
+</section>
+
+<main>
+  <div class="product-grid" id="productGrid">
+    <!-- Populated dynamically via /api/v1/products -->
+  </div>
+</main>
+
+<!-- Product Detail & Review Modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="modalTitle">Product Details</h2>
+      <button class="close-x" onclick="closeProductModal()">✕</button>
+    </div>
+    <p id="modalCategory" style="font-size:0.75rem; color:var(--accent); text-transform:uppercase; font-weight:700; margin-bottom:6px;"></p>
+    <p id="modalDesc" style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px;"></p>
+    <div style="font-size:1.4rem; font-weight:900; margin-bottom:18px;" id="modalPrice"></div>
+
+    <h3 style="font-size:1rem; border-top:1px solid var(--border); padding-top:16px; margin-bottom:12px;">Verified Customer Reviews</h3>
+    <div id="modalReviews" style="margin-bottom:16px; max-height:180px; overflow-y:auto; font-size:0.84rem;"></div>
+
+    <div style="border-top:1px solid var(--border); padding-top:14px;">
+      <h4 style="font-size:0.86rem; margin-bottom:8px;">Submit Customer Review</h4>
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+        <input type="text" id="reviewAuthor" class="input" placeholder="Your Name" value="Alice Walker" style="flex:1;">
+        <select id="reviewRating" class="input" style="width:130px; cursor:pointer;">
+          <option value="5">★★★★★ 5/5</option>
+          <option value="4">★★★★☆ 4/5</option>
+          <option value="3">★★★☆☆ 3/5</option>
+          <option value="2">★★☆☆☆ 2/5</option>
+          <option value="1">★☆☆☆☆ 1/5</option>
+        </select>
+      </div>
+      <textarea id="reviewText" placeholder="Write feedback... (e.g. Excellent build quality, seamless hardware integration)"></textarea>
+      <button class="btn primary" id="btnPostReview" style="margin-top:8px;" onclick="submitReview()">Post Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- Slide-Out Shopping Cart Drawer -->
+<div class="drawer" id="cartDrawer">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="font-size:1.15rem;">Shopping Cart</h2>
+    <button class="close-x" onclick="toggleCartDrawer()">✕</button>
+  </div>
+  
+  <div class="drawer-items" id="cartItems">
+    <!-- Populated by JS -->
+  </div>
+
+  <div class="drawer-footer">
+    <div class="form-group">
+      <label>Promo Voucher Code</label>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="couponInput" class="input" placeholder="e.g. APEXVIP500" value="APEXVIP500">
+        <button class="btn" onclick="applyCoupon()">Apply</button>
+      </div>
+      <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Single-use coupon APEXVIP500 credits $500 directly to Apex Wallet.</div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.1rem; margin-bottom:16px;">
+      <span>Subtotal</span>
+      <span id="cartSubtotal">$69.99</span>
+    </div>
+
+    <button class="btn primary" style="width:100%; padding:12px;" onclick="openCheckoutModal()">Proceed to Checkout</button>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Authorize Order &amp; Billing Settlement</h2>
+      <button class="close-x" onclick="closeCheckoutModal()">✕</button>
+    </div>
+    
+    <div class="form-group">
+      <label>Delivery Address</label>
+      <select id="checkoutAddress">
+        <option value="1">Alice Walker – 742 Evergreen Terrace, Seattle WA 98101</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Payment Method</label>
+      <select id="checkoutPayment">
+        <option>Apex Wallet Balance ($2,450.00 USD)</option>
+        <option>MasterCard ending in 4321</option>
+        <option>Direct Debit Wire Transfer</option>
+      </select>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin:16px 0;">
+      <span style="font-weight:700;">Order Total:</span>
+      <span style="font-size:1.25rem; font-weight:900;" id="orderTotalDisplay">$69.99</span>
+    </div>
+
+    <button class="btn primary" style="width:100%; padding:12px;" onclick="executeCheckout()">Place Order &amp; Generate Invoice</button>
+    <div id="checkoutResult" style="display:none; margin-top:14px; background:var(--bg-input); padding:12px; border-radius:8px; font-family:var(--mono); font-size:0.8rem; white-space:pre-wrap;"></div>
+  </div>
+</div>
+
+<!-- Customer Profile Modal -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Customer Profile &amp; KYC Records</h2>
+      <button class="close-x" onclick="closeProfileModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Account ID</label>
+      <input type="text" class="input" value="1" readonly>
+    </div>
+    <div class="form-group">
+      <label>Full Legal Name</label>
+      <input type="text" class="input" value="Alice Walker" readonly>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="text" class="input" value="alice@apexmart.local" readonly>
+    </div>
+    <div class="form-group">
+      <label>Masked SSN</label>
+      <input type="text" class="input" value="***-**-1029" readonly>
+    </div>
+
+    <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:14px;">
+      <h3 style="font-size:0.9rem; margin-bottom:8px;">Self-Service Password Recovery</h3>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">Dispatches a signed password reset link using the account email address.</p>
+      <button class="btn" onclick="triggerPasswordReset()">Dispatch Password Reset Link</button>
+    </div>
+
+    <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:14px;">
+      <h3 style="font-size:0.9rem; margin-bottom:8px;">Developer API Keys &amp; SSO Integration</h3>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">Inspect scoped client credentials and session tokens via the CORS-enabled credentials endpoint.</p>
+      <button class="btn" onclick="fetchApiCredentials()">Inspect API Credentials (SSO)</button>
+      <div id="credentialsBox" style="display:none; margin-top:8px; background:var(--bg-input); padding:10px; border-radius:6px; font-family:var(--mono); font-size:0.78rem; white-space:pre-wrap;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- B2B Partner Portal & Webhooks Modal -->
+<div class="modal-overlay" id="partnerModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>B2B Enterprise Integration &amp; Webhook Hub</h2>
+      <button class="close-x" onclick="closePartnerModal()">✕</button>
+    </div>
+
+    <h3 style="font-size:0.92rem; margin-bottom:6px;">Outbound Webhook Delivery Ping</h3>
+    <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">Tests outbound server-to-server HTTP connectivity to remote partner webhook callbacks.</p>
+    <div class="form-group">
+      <input type="text" id="webhookInput" class="input" value="https://api.partner-hub.local/v1/callbacks" placeholder="https://api.partner-hub.local/v1/callbacks">
+      <button class="btn primary" style="margin-top:8px;" onclick="sendWebhookPing()">Test Outbound Ping</button>
+      <div id="webhookBox" style="display:none; margin-top:8px; background:var(--bg-input); padding:10px; border-radius:6px; font-family:var(--mono); font-size:0.78rem; white-space:pre-wrap;"></div>
+    </div>
+
+    <h3 style="font-size:0.92rem; margin-top:18px; margin-bottom:6px; border-top:1px solid var(--border); padding-top:14px;">B2B XML Billing Invoice Importer</h3>
+    <div class="form-group">
+      <textarea id="xmlInput">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;invoice&gt;
+  &lt;id&gt;INV-2026-9901&lt;/id&gt;
+  &lt;amount&gt;4500.00&lt;/amount&gt;
+  &lt;recipient&gt;ApexMart Enterprise Services&lt;/recipient&gt;
+&lt;/invoice&gt;</textarea>
+      <button class="btn primary" style="margin-top:8px;" onclick="uploadXmlInvoice()">Ingest XML Invoice</button>
+      <div id="xmlBox" style="display:none; margin-top:8px; background:var(--bg-input); padding:10px; border-radius:6px; font-family:var(--mono); font-size:0.78rem; white-space:pre-wrap;"></div>
+    </div>
+
+    <h3 style="font-size:0.92rem; margin-top:18px; margin-bottom:6px; border-top:1px solid var(--border); padding-top:14px;">Inbound Fulfillment Webhook Receiver</h3>
+    <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">Enterprise logistics partners dispatch automated shipping events to <code>POST /api/v1/webhooks/fulfillment</code> with <code>X-Apex-Signature</code> verification.</p>
+    <div class="form-group">
+      <button class="btn" onclick="sendFulfillmentWebhookTest()">Simulate Partner Fulfillment Webhook</button>
+      <div id="fulfillmentBox" style="display:none; margin-top:8px; background:var(--bg-input); padding:10px; border-radius:6px; font-family:var(--mono); font-size:0.78rem; white-space:pre-wrap;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Discreet CTF Flag Submission Drawer -->
+<div class="drawer" id="flagDrawer">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="font-size:1.15rem;">🚩 CTF Flag Verification</h2>
+    <button class="close-x" onclick="toggleFlagPortal()">✕</button>
+  </div>
+  
+  <div style="margin:20px 0; background:var(--bg-input); padding:16px; border-radius:10px; border:1px solid var(--border); text-align:center;">
+    <div style="font-size:2rem; font-weight:900; color:var(--accent);" id="ctfScore">0 / 31</div>
+    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Flags Verified</div>
+  </div>
+
+  <div class="form-group">
+    <label>Submit Discovered Flag</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="flagSubmitInput" class="input" placeholder="APEX{...}">
+      <button class="btn primary" onclick="submitFlag()">Submit</button>
+    </div>
+  </div>
+
+  <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">Verified Exploit Log:</div>
+  <div id="ctfHistory" style="flex:1; overflow-y:auto; background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:12px; font-family:var(--mono); font-size:0.75rem;">
+    <div style="color:var(--text-muted);">No flags submitted. Intercept network requests and parameters to locate vulnerabilities.</div>
+  </div>
+
+  <div style="margin-top:16px; display:flex; gap:10px;">
+    <a href="/evaluator" target="_blank" class="btn" style="flex:1; text-align:center; justify-content:center;">Examiner Portal ↗</a>
+    <button class="btn" style="flex:1;" onclick="resetDatabase()">↺ Reset DB</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="javascript:void(0)" onclick="openPartnerModal()">B2B Partner Integrations</a>
+    <a href="/docs" target="_blank">OpenAPI 3.0 Documentation</a>
+    <a href="/robots.txt" target="_blank">Robots.txt</a>
+    <a href="javascript:void(0)" onclick="toggleFlagPortal()">Security Auditor Portal</a>
+  </div>
+  <p style="text-align:center;">ApexMart Cyber Hardware Emporium &bull; Production Security Evaluation Range &bull; Bound to 127.0.0.1</p>
+</footer>
+
+<script>
+let currentProducts = [];
+let currentModalProductId = null;
+let cart = [{ id: 1, name: "NitroKey 3A NFC Crypto Dongle", price: 69.99, qty: 1 }];
+
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  const m = document.getElementById("toastMsg");
+  m.textContent = msg;
+  t.className = `toast ${type}`;
+  t.style.display = "flex";
+  setTimeout(() => { t.style.display = "none"; }, 3200);
+}
+
+async function loadProducts(cat = "") {
+  try {
+    const url = cat && cat !== "All" ? `/api/v1/products?category=${encodeURIComponent(cat)}` : "/api/v1/products";
+    const res = await fetch(url);
+    const data = await res.json();
+    currentProducts = data.products || [];
+    renderProducts(currentProducts);
+  } catch (err) {
+    console.error("Products load error:", err);
+  }
+}
+
+function renderProducts(products) {
+  const grid = document.getElementById("productGrid");
+  if (!products.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:40px;">No products match your query.</div>';
+    return;
+  }
+  grid.innerHTML = products.map(p => `
+    <div class="product-card">
+      <div>
+        <div class="product-top">
+          <span class="product-cat">${escapeHtml(p.category)}</span>
+          <span class="product-stock">In Stock (${p.stock})</span>
+        </div>
+        <h3 class="product-title">${escapeHtml(p.name)}</h3>
+        <p class="product-desc">${escapeHtml(p.description)}</p>
+      </div>
+
+      <div>
+        <div class="product-rating">
+          <span>★★★★★</span>
+          <span style="color:var(--text-muted);">(${p.rating} / ${p.reviews_count || 10} reviews)</span>
+        </div>
+        <div class="product-bottom">
+          <div class="product-price">$${parseFloat(p.price).toFixed(2)}</div>
+          <div class="btn-group">
+            <button class="btn" onclick="openProductModal(${p.id})">Details</button>
+            <button class="btn primary" onclick="addToCart(${p.id})">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function escapeHtml(s) {
+  if (!s) return "";
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+function filterCategory(cat) {
+  document.querySelectorAll(".cat-pill").forEach(p => p.classList.remove("active"));
+  event.target.classList.add("active");
+  loadProducts(cat);
+}
+
+async function executeSearch() {
+  const q = document.getElementById("searchInput").value.trim();
+  try {
+    const res = await fetch(`/api/v1/products/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    if (data.results) {
+      renderProducts(data.results);
+    }
+  } catch (e) {
+    console.error("Search failed:", e);
+  }
+}
+
+async function loadModalReviews(pid) {
+  const revContainer = document.getElementById("modalReviews");
+  if (!revContainer) return;
+  try {
+    const revRes = await fetch(`/api/v1/products/${pid}/reviews`);
+    const revData = await revRes.json();
+    if (revData.reviews && revData.reviews.length) {
+      revContainer.innerHTML = revData.reviews.map(r => {
+        const rating = Math.max(1, Math.min(5, parseInt(r.rating) || 5));
+        const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+        const dateStr = r.created_at ? `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:8px;">${escapeHtml(r.created_at)}</span>` : '';
+        return `
+          <div style="padding:10px 0; border-bottom:1px solid var(--border);">
+            <div style="font-weight:700; display:flex; justify-content:space-between; align-items:center;">
+              <span>${escapeHtml(r.author_name || 'Anonymous')} <span style="color:var(--warning); margin-left:4px;">${stars}</span></span>
+              ${dateStr}
+            </div>
+            <div style="color:var(--text-muted); margin-top:4px; line-height:1.4; word-break:break-word;">${escapeHtml(r.comment || '')}</div>
+          </div>
+        `;
+      }).join("");
+    } else {
+      revContainer.innerHTML = '<div style="color:var(--text-muted); padding:12px 0;">No reviews yet. Be the first to share your thoughts!</div>';
+    }
+  } catch (err) {
+    console.error("Failed to load reviews:", err);
+    revContainer.innerHTML = '<div style="color:var(--danger); padding:10px 0;">Failed to load reviews.</div>';
+  }
+}
+
+async function openProductModal(pid) {
+  currentModalProductId = pid;
+  try {
+    const res = await fetch(`/api/v1/products/${pid}`);
+    const data = await res.json();
+    const p = data.product;
+    document.getElementById("modalTitle").textContent = p.name;
+    document.getElementById("modalCategory").textContent = p.category;
+    document.getElementById("modalDesc").textContent = p.description;
+    document.getElementById("modalPrice").textContent = `$${parseFloat(p.price).toFixed(2)}`;
+
+    // Clear previous input
+    const reviewTextInput = document.getElementById("reviewText");
+    if (reviewTextInput) reviewTextInput.value = "";
+
+    await loadModalReviews(pid);
+    document.getElementById("productModal").classList.add("open");
+  } catch (err) {
+    console.error("Failed to open product modal:", err);
+    showToast("Failed to load product details.", "error");
+  }
+}
+
+function closeProductModal() {
+  document.getElementById("productModal").classList.remove("open");
+}
+
+async function submitReview() {
+  if (!currentModalProductId) {
+    showToast("No product selected.", "error");
+    return;
+  }
+  const authorInput = document.getElementById("reviewAuthor");
+  const ratingInput = document.getElementById("reviewRating");
+  const textInput = document.getElementById("reviewText");
+  const postBtn = document.getElementById("btnPostReview");
+
+  const author = (authorInput ? authorInput.value.trim() : "") || "Alice Walker";
+  const rating = ratingInput ? parseInt(ratingInput.value) || 5 : 5;
+  const comment = textInput ? textInput.value.trim() : "";
+
+  if (!comment) {
+    showToast("Please enter feedback before posting your review.", "warning");
+    if (textInput) textInput.focus();
+    return;
+  }
+
+  if (postBtn) {
+    postBtn.disabled = true;
+    postBtn.textContent = "Posting...";
+  }
+
+  try {
+    const res = await fetch(`/api/v1/products/${currentModalProductId}/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        author_name: author,
+        rating: rating,
+        comment: comment
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.status === "success") {
+      showToast(data.message || "Review posted successfully!", "success");
+      if (textInput) textInput.value = "";
+      await loadModalReviews(currentModalProductId);
+      const revContainer = document.getElementById("modalReviews");
+      if (revContainer) {
+        revContainer.scrollTop = revContainer.scrollHeight;
+      }
+      if (typeof loadProducts === "function") {
+        loadProducts();
+      }
+    } else {
+      showToast(data.error || "Failed to post review.", "error");
+    }
+  } catch (err) {
+    console.error("Submit review error:", err);
+    showToast("Network error submitting review.", "error");
+  } finally {
+    if (postBtn) {
+      postBtn.disabled = false;
+      postBtn.textContent = "Post Review";
+    }
+  }
+}
+
+/* Cart & Checkout Logic */
+function toggleCartDrawer() {
+  document.getElementById("cartDrawer").classList.toggle("open");
+  renderCart();
+}
+
+function addToCart(pid) {
+  const p = currentProducts.find(x => x.id === pid);
+  if (!p) return;
+  const existing = cart.find(x => x.id === pid);
+  if (existing) existing.qty += 1;
+  else cart.push({ id: p.id, name: p.name, price: p.price, qty: 1 });
+  document.getElementById("cartCount").textContent = cart.reduce((a, b) => a + b.qty, 0);
+  showToast(`Added ${p.name} to cart!`, "success");
+}
+
+function getSubtotal() {
+  return cart.reduce((a, b) => a + b.price * b.qty, 0);
+}
+
+function renderCart() {
+  const container = document.getElementById("cartItems");
+  if (!cart.length) {
+    container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:20px;">Cart is empty.</div>';
+    document.getElementById("cartSubtotal").textContent = "$0.00";
+    return;
+  }
+  const total = getSubtotal();
+  container.innerHTML = cart.map(i => `
+    <div class="drawer-item">
+      <div>
+        <div style="font-weight:700;">${escapeHtml(i.name)}</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">$${i.price.toFixed(2)} × ${i.qty}</div>
+      </div>
+      <div style="font-weight:800;">$${(i.price * i.qty).toFixed(2)}</div>
+    </div>
+  `).join("");
+  document.getElementById("cartSubtotal").textContent = `$${total.toFixed(2)}`;
+}
+
+async function applyCoupon() {
+  const code = document.getElementById("couponInput").value.trim();
+  try {
+    const res = await fetch("/api/v1/coupons/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(data.message, "success");
+    } else {
+      showToast(data.error || "Coupon invalid or limit reached", "error");
+    }
+  } catch (e) {
+    showToast("Error processing voucher", "error");
+  }
+}
+
+function openCheckoutModal() {
+  document.getElementById("cartDrawer").classList.remove("open");
+  const subtotal = getSubtotal();
+  document.getElementById("orderTotalDisplay").textContent = `$${subtotal.toFixed(2)}`;
+  document.getElementById("checkoutModal").classList.add("open");
+}
+function closeCheckoutModal() { document.getElementById("checkoutModal").classList.remove("open"); }
+
+async function executeCheckout() {
+  const subtotal = getSubtotal();
+  const resultBox = document.getElementById("checkoutResult");
+  resultBox.style.display = "block";
+  resultBox.textContent = "Processing order settlement...";
+  try {
+    const res = await fetch("/api/v1/cart/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ total: subtotal })
+    });
+    const data = await res.json();
+    resultBox.textContent = JSON.stringify(data, null, 2);
+    if (res.ok) {
+      showToast(data.message || "Order placed successfully!", "success");
+    }
+  } catch (e) {
+    resultBox.textContent = "Error: " + e;
+  }
+}
+
+/* Modals & Tools */
+function openProfileModal() { document.getElementById("profileModal").classList.add("open"); }
+function closeProfileModal() { document.getElementById("profileModal").classList.remove("open"); }
+
+function openPartnerModal() { document.getElementById("partnerModal").classList.add("open"); }
+function closePartnerModal() { document.getElementById("partnerModal").classList.remove("open"); }
+
+function toggleFlagPortal() {
+  document.getElementById("flagDrawer").classList.toggle("open");
+  refreshFlags();
+}
+
+async function triggerPasswordReset() {
+  try {
+    const res = await fetch("/api/v1/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "alice@apexmart.local" })
+    });
+    const data = await res.json();
+    alert(`Reset Link generated for Alice:\n${data.debug_reset_link}\nAlgorithm: ${data.token_algorithm}`);
+  } catch (e) { alert("Failed"); }
+}
+
+async function fetchApiCredentials() {
+  const box = document.getElementById("credentialsBox");
+  box.style.display = "block";
+  box.textContent = "Requesting /api/v1/user/credentials with credentials: 'include'...";
+  try {
+    const res = await fetch("/api/v1/user/credentials", { credentials: "include" });
+    const data = await res.json();
+    box.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    box.textContent = "Error: " + err;
+  }
+}
+
+async function sendWebhookPing() {
+  const url = document.getElementById("webhookInput").value.trim();
+  const box = document.getElementById("webhookBox");
+  box.style.display = "block";
+  box.textContent = "Dispatching HTTP ping...";
+  try {
+    const res = await fetch(`/api/v1/vendor/webhook-test?url=${encodeURIComponent(url)}`);
+    const text = await res.text();
+    let pretty = text;
+    try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch (e) {}
+    box.textContent = pretty;
+  } catch (err) {
+    box.textContent = "Error: " + err;
+  }
+}
+
+async function uploadXmlInvoice() {
+  const payload = document.getElementById("xmlInput").value;
+  const box = document.getElementById("xmlBox");
+  box.style.display = "block";
+  box.textContent = "Parsing XML payload...";
+  try {
+    const res = await fetch("/api/v1/vendor/invoice-upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/xml" },
+      body: payload
+    });
+    const data = await res.json();
+    box.textContent = JSON.stringify(data, null, 2);
+  } catch (e) {
+    box.textContent = "Error: " + e;
+  }
+}
+
+async function sendFulfillmentWebhookTest() {
+  const box = document.getElementById("fulfillmentBox");
+  box.style.display = "block";
+  box.textContent = "Simulating signed logistics event to /api/v1/webhooks/fulfillment...";
+  try {
+    const res = await fetch("/api/v1/webhooks/fulfillment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Apex-Signature": "sha256_mock_valid_signature_88a9c"
+      },
+      body: JSON.stringify({ order_id: 1, status: "delivered" })
+    });
+    const data = await res.json();
+    box.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    box.textContent = "Error: " + err;
+  }
+}
+
+/* Flag Submission */
+async function submitFlag() {
+  const flag = document.getElementById("flagSubmitInput").value.trim();
+  if (!flag) return;
+  try {
+    const res = await fetch("/api/v1/flags/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ flag })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(`🎉 Verified: ${data.message}`, "success");
+      document.getElementById("flagSubmitInput").value = "";
+      refreshFlags();
+    } else {
+      showToast(data.message || "Incorrect flag", "error");
+    }
+  } catch (e) {}
+}
+
+async function refreshFlags() {
+  try {
+    const res = await fetch("/api/v1/flags/progress");
+    const data = await res.json();
+    document.getElementById("ctfScore").textContent = `${data.score} / ${data.total_challenges}`;
+    const history = document.getElementById("ctfHistory");
+    if (data.claimed_challenges && data.claimed_challenges.length) {
+      history.innerHTML = data.claimed_challenges.map(c => `
+        <div style="padding:4px 0; border-bottom:1px solid var(--border); color:var(--accent);">
+          ✓ ${c}
+        </div>
+      `).join("");
+    }
+  } catch (e) {}
+}
+
+async function resetDatabase() {
+  if (!confirm("Are you sure? This will wipe the SQLite database, re-seed all stock, and reset captured flags.")) return;
+  await fetch("/api/v1/system/reset-db", { method: "POST" });
+  showToast("Database & flags reset successfully!", "success");
+  loadProducts();
+  refreshFlags();
+}
+
+window.onload = () => {
+  loadProducts();
+  refreshFlags();
+};
+</script>
+</body>
+</html>
