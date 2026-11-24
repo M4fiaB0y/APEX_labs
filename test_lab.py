@@ -10,14 +10,22 @@ import time
 # -------------------------------------------------------------
 # PHASE 0: DATABASE & ENVIRONMENT ISOLATION SETUP
 # -------------------------------------------------------------
-# Ensure the automated test suite NEVER touches or resets the learner's actual database (apex_lab.db).
+# Ensure the automated test suite NEVER touches or resets the learner's actual database (apex_lab.db)
+# or the real master secret (.apex_secret).
 TEST_DB_PATH = os.path.join(os.path.dirname(__file__), "test_apex_lab.db")
 REAL_DB_PATH = os.path.join(os.path.dirname(__file__), "apex_lab.db")
+TEST_SECRET_PATH = os.path.join(os.path.dirname(__file__), "test_apex_secret")
+REAL_SECRET_PATH = os.path.join(os.path.dirname(__file__), ".apex_secret")
 
-# Record state of real DB if it exists
+# Record state of real DB and secret if they exist
 real_db_mtime_before = os.path.getmtime(REAL_DB_PATH) if os.path.exists(REAL_DB_PATH) else None
+real_sec_content_before = open(REAL_SECRET_PATH, "r", encoding="utf-8").read() if os.path.exists(REAL_SECRET_PATH) else None
 
 os.environ["APEX_DB_PATH"] = TEST_DB_PATH
+os.environ["APEX_SECRET_FILE"] = TEST_SECRET_PATH
+
+with open(TEST_SECRET_PATH, "w", encoding="utf-8") as f:
+    f.write("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
 
 import flags
 import database
@@ -39,10 +47,14 @@ print("[+] Test 0.1: Application startup and /health check endpoint verified suc
 
 # 0.2 Test Database Isolation Verification
 assert os.path.abspath(database.DB_PATH) == os.path.abspath(TEST_DB_PATH)
+assert os.path.abspath(flags.get_secret_file_path()) == os.path.abspath(TEST_SECRET_PATH)
 if real_db_mtime_before is not None:
     real_db_mtime_after = os.path.getmtime(REAL_DB_PATH)
     assert real_db_mtime_before == real_db_mtime_after, "Learner's apex_lab.db was modified during test initialization!"
-print("[+] Test 0.2: Test database isolation verified (apex_lab.db completely untouched)")
+if real_sec_content_before is not None:
+    real_sec_content_after = open(REAL_SECRET_PATH, "r", encoding="utf-8").read()
+    assert real_sec_content_before == real_sec_content_after, "Learner's .apex_secret was modified during test initialization!"
+print("[+] Test 0.2: Test database and secret isolation verified (apex_lab.db and .apex_secret completely untouched)")
 
 # -------------------------------------------------------------
 # PHASE 1: INNOCENT ACTIONS MUST NEVER AWARD FLAGS (Zero False Positives)
@@ -252,13 +264,28 @@ print(f"[+] Exploit 16: ReDoS Resource Consumption -> {exp}")
 
 # 17. BFLA Unauthenticated Database Backup Dump
 exp = flags.get_flag('bfla_admin_export')
-res = client.get('/api/v1/admin/backup/dump')
+# Ensure GET without request specification is rejected
+bad_get = client.get('/api/v1/admin/backup/dump')
+assert bad_get.status_code == 400
+assert 'error' in bad_get.get_json()
+# Ensure POST without body is rejected
+bad_post = client.post('/api/v1/admin/backup/dump', json={})
+assert bad_post.status_code == 400
+# Proper POST with format body succeeds
+res = client.post('/api/v1/admin/backup/dump', json={'format': 'json'})
+assert res.status_code == 200
 assert res.get_json().get('flag') == exp
 print(f"[+] Exploit 17: BFLA DB Backup Dump -> {exp}")
 
 # 18. BFLA Method Tampering
 exp = flags.get_flag('bfla_method_tamper')
-res = client.put('/api/v1/admin/maintenance')
+# Ensure PUT without body is rejected
+bad_put = client.put('/api/v1/admin/maintenance', json={})
+assert bad_put.status_code == 400
+assert 'error' in bad_put.get_json()
+# Proper PUT with maintenance action succeeds
+res = client.put('/api/v1/admin/maintenance', json={'action': 'enable', 'maintenance_mode': True})
+assert res.status_code == 200
 assert res.get_json().get('flag') == exp
 print(f"[+] Exploit 18: BFLA Method Tampering -> {exp}")
 
@@ -417,12 +444,17 @@ new_flag = flags.get_flag('bola_user_pii')
 assert init_flag != new_flag, "Instance reset failed to generate new cryptographic secret!"
 print("[+] Test 4.4: Full instance reset option successfully rotates instance HMAC secret and flags")
 
-# Clean up isolated test database
+# Clean up isolated test database and secret
 try:
     if os.path.exists(TEST_DB_PATH):
         os.remove(TEST_DB_PATH)
+    if os.path.exists(TEST_SECRET_PATH):
+        os.remove(TEST_SECRET_PATH)
 except Exception:
     pass
+
+if real_sec_content_before is not None:
+    assert real_sec_content_before == open(REAL_SECRET_PATH, "r", encoding="utf-8").read(), "Learner's .apex_secret was altered during test suite execution!"
 
 print("\n[*] ==========================================================")
 print("[*] COMPLETE SUITE PASSED: 100% OF 31 CHALLENGES & RESILIENCE TESTS VERIFIED!")

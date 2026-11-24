@@ -2,25 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ApexCore API Documentation - Swagger UI</title>
+  <title>ApexMart Developer Portal - API Reference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui.css" />
   <style>
-    body { margin: 0; background: #0b0f19; font-family: 'Segoe UI', system-ui, sans-serif; color: #e2e8f0; }
-    .topbar { background: #070a13; padding: 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; }
-    .brand { font-size: 1.15rem; font-weight: 800; color: #22d3ee; display: flex; align-items: center; gap: 8px; text-decoration: none; }
-    .back-btn { padding: 8px 16px; background: rgba(34,211,238,0.15); border: 1px solid rgba(34,211,238,0.3); color: #22d3ee; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.85rem; }
-    .back-btn:hover { background: rgba(34,211,238,0.25); }
+    body { margin: 0; background: #0b0f19; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #e2e8f0; }
+    .topbar { background: #111827; padding: 14px 28px; border-bottom: 1px solid #233048; display: flex; align-items: center; justify-content: space-between; }
+    .brand { font-size: 1.15rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand svg { width: 22px; height: 22px; fill: none; stroke: #38bdf8; stroke-width: 2.2; }
+    .back-btn { padding: 8px 16px; background: rgba(37, 99, 235, 0.15); border: 1px solid #2563eb; color: #38bdf8; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.85rem; transition: all 0.2s; }
+    .back-btn:hover { background: #2563eb; color: #fff; }
     .swagger-ui .topbar { display: none; }
-    .swagger-ui { filter: invert(88%) hue-rotate(180deg); max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+    .swagger-ui { filter: invert(88%) hue-rotate(180deg); max-width: 1300px; margin: 24px auto; padding: 0 24px; }
     .swagger-ui .info .title { color: #000; }
   </style>
 </head>
 <body>
   <div class="topbar">
     <a href="/" class="brand">
-      <span>🛡️</span> ApexCore API Explorer (Swagger / OpenAPI 3.0)
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <span>ApexMart Developer API Reference (OpenAPI 3.0)</span>
     </a>
-    <a href="/" class="back-btn">← Back to Lab Console</a>
+    <a href="/" class="back-btn">← Back to Store</a>
   </div>
   <div id="swagger-ui"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-bundle.js"></script>

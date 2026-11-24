@@ -6,22 +6,27 @@ import secrets
 # Master secret key configuration file (excluded from Git).
 # A cryptographically secure per-instance secret is generated on first run
 # and persisted across application restarts.
-SECRET_FILE_PATH = os.environ.get("APEX_SECRET_FILE", os.path.join(os.path.dirname(__file__), ".apex_secret"))
+def get_secret_file_path() -> str:
+    return os.environ.get("APEX_SECRET_FILE", os.path.join(os.path.dirname(__file__), ".apex_secret"))
 
 def load_or_create_instance_secret() -> str:
-    """Loads the instance HMAC secret from disk or generates a new 64-character hex secret."""
-    if os.path.exists(SECRET_FILE_PATH):
+    """Loads the instance HMAC secret from disk or generates a fresh 64-character hex secret.
+    Each deployment has its own cryptographic instance secret, ensuring that flags extracted
+    from the live database and exploit responses are the only valid flags.
+    """
+    sec_path = get_secret_file_path()
+    if os.path.exists(sec_path):
         try:
-            with open(SECRET_FILE_PATH, "r", encoding="utf-8") as f:
+            with open(sec_path, "r", encoding="utf-8") as f:
                 sec = f.read().strip()
-                if len(sec) >= 32:
+                if len(sec) >= 32 and sec != "CANONICAL":
                     return sec
         except Exception:
             pass
 
     new_sec = secrets.token_hex(32)
     try:
-        with open(SECRET_FILE_PATH, "w", encoding="utf-8") as f:
+        with open(sec_path, "w", encoding="utf-8") as f:
             f.write(new_sec)
     except Exception:
         pass
@@ -30,8 +35,9 @@ def load_or_create_instance_secret() -> str:
 def reset_instance_secret() -> str:
     """Forces generation of a brand-new instance secret for a full cyber range reset."""
     global MASTER_FLAG_SECRET
+    sec_path = get_secret_file_path()
     new_sec = secrets.token_hex(32)
-    with open(SECRET_FILE_PATH, "w", encoding="utf-8") as f:
+    with open(sec_path, "w", encoding="utf-8") as f:
         f.write(new_sec)
     MASTER_FLAG_SECRET = new_sec
     return new_sec
@@ -155,8 +161,8 @@ CHALLENGE_DEFINITIONS = {
         "title": "BFLA Unauthenticated Database Backup Dump",
         "category": "API5:2023 BFLA",
         "cvss": 9.8,
-        "endpoint": "GET /api/v1/admin/backup/dump",
-        "hint": "Investigate disallowed routes in robots.txt to discover unauthenticated administrative backup dump endpoints."
+        "endpoint": "POST /api/v1/admin/backup/dump",
+        "hint": "Discover unauthenticated administrative backup routes (such as /api/v1/admin/backup/dump) via endpoint fuzzing or API reconnaissance."
     },
     "bfla_method_tamper": {
         "title": "HTTP Method Tampering Bypass",
@@ -212,14 +218,14 @@ CHALLENGE_DEFINITIONS = {
         "category": "API8:2023 Misconfig",
         "cvss": 8.6,
         "endpoint": "GET /api/v1/debug/environment",
-        "hint": "Review robots.txt and frontend source maps to discover diagnostic debug endpoints."
+        "hint": "Inspect developer diagnostic and debug endpoints (such as /api/v1/debug/environment) for leaked environment credentials."
     },
     "shadow_api_v0": {
         "title": "Deprecated Shadow API Wire Bypass",
         "category": "API9:2023 Inventory",
         "cvss": 8.3,
         "endpoint": "POST /api/v0.9/payments/direct-debit",
-        "hint": "Investigate legacy unindexed API version prefixes discovered in robots.txt (/api/v0.9/)."
+        "hint": "Probe deprecated shadow API version prefixes (such as /api/v0.9/) to bypass modern authentication controls."
     },
     "swagger_docs_leak": {
         "title": "OpenAPI 3.0 Blueprint Leak",
@@ -259,7 +265,7 @@ CHALLENGE_DEFINITIONS = {
 }
 
 def get_flag(challenge_id: str) -> str:
-    """Derives a dynamic, anti-AI HMAC flag string.
+    """Derives a dynamic, anti-AI HMAC flag string unique to this instance.
     Example: APEX{BOLA_USER_PII_B8A4D2901F}
     """
     if challenge_id not in CHALLENGE_DEFINITIONS:
@@ -275,7 +281,10 @@ def get_flag(challenge_id: str) -> str:
     return f"APEX{{{clean_tag}_{token_sig}}}"
 
 def verify_submitted_flag(flag_text: str):
-    """Validates submitted flag against all known challenge HMAC signatures."""
+    """Validates submitted flag strictly against the active instance HMAC signatures.
+    Only flags extracted directly from the live database or runtime exploit responses are accepted.
+    Static strings from walkthrough guides or leaked documents are rejected.
+    """
     if not flag_text or not isinstance(flag_text, str):
         return None
     

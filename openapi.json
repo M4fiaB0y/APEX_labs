@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "ApexCore FinTech & Cloud API Gateway",
+    "title": "ApexMart E-Commerce & Cryptographic Hardware API Gateway",
     "description": "Production-grade Banking, Payment, and Cloud microservices gateway API specification. Intended for internal engineering teams and authorized partner integrations.",
-    "version": "2.4.0-enterprise",
+    "version": "2026.4.1",
     "contact": {
       "name": "Apex Security Operations",
-      "email": "security@apexbank.local"
+      "email": "security@apexmart.local"
     }
   },
   "servers": [
@@ -18,7 +18,7 @@
   "paths": {
     "/api/v1/users/{uid}": {
       "get": {
-        "summary": "Retrieve User Profile (BOLA Vulnerable)",
+        "summary": "Retrieve User Profile",
         "parameters": [
           { "name": "uid", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
@@ -27,7 +27,7 @@
     },
     "/api/v1/accounts/{account_num}/statement": {
       "get": {
-        "summary": "Fetch Account Statement (BOLA Vulnerable)",
+        "summary": "Fetch Account Statement",
         "parameters": [
           { "name": "account_num", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
@@ -36,8 +36,9 @@
     },
     "/api/v1/auth/login": {
       "post": {
-        "summary": "Authenticate User (User Enum & Brute-force)",
+        "summary": "Authenticate User",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -55,8 +56,9 @@
     },
     "/api/v1/auth/verify-jwt": {
       "post": {
-        "summary": "Verify JWT Session (alg:none Vulnerable)",
+        "summary": "Verify JWT Session",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -71,8 +73,9 @@
     },
     "/api/v1/users/register": {
       "post": {
-        "summary": "Register New Customer (Mass Assignment Vulnerable)",
+        "summary": "Register Customer Profile",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -81,6 +84,7 @@
                   "username": { "type": "string" },
                   "password": { "type": "string" },
                   "role": { "type": "string" },
+                  "wallet_balance": { "type": "number" },
                   "balance": { "type": "number" }
                 }
               }
@@ -92,8 +96,9 @@
     },
     "/api/v1/graphql": {
       "post": {
-        "summary": "GraphQL Gateway (Introspection & Batch DoS)",
+        "summary": "GraphQL Operations Gateway",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -107,15 +112,30 @@
       }
     },
     "/api/v1/admin/export-database": {
-      "get": {
-        "summary": "Export Enterprise Database (BFLA Vulnerable)",
+      "post": {
+        "summary": "Export Enterprise Database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "format": { "type": "string", "example": "json" },
+                  "include_tables": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            }
+          }
+        },
         "responses": { "200": { "description": "Full database dump" } }
       }
     },
     "/api/v1/store/checkout": {
       "post": {
-        "summary": "Process Order Checkout (Negative Price Flow)",
+        "summary": "Process Order Checkout",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -134,8 +154,9 @@
     },
     "/api/v1/vouchers/redeem": {
       "post": {
-        "summary": "Redeem Promo Voucher (Race Condition TOCTOU)",
+        "summary": "Redeem Promotional Voucher",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -153,7 +174,7 @@
     },
     "/api/v1/integrations/fetch-webhook": {
       "get": {
-        "summary": "Integration Webhook Dispatcher (SSRF Vulnerable)",
+        "summary": "Integration Webhook Dispatcher",
         "parameters": [
           { "name": "url", "in": "query", "required": true, "schema": { "type": "string" } }
         ],
@@ -162,7 +183,7 @@
     },
     "/api/v1/transactions/search": {
       "get": {
-        "summary": "Search Financial Audit Records (SQLi Vulnerable)",
+        "summary": "Search Catalog & Audit Records",
         "parameters": [
           { "name": "q", "in": "query", "required": true, "schema": { "type": "string" } }
         ],
@@ -171,8 +192,9 @@
     },
     "/api/v1/invoice/xml": {
       "post": {
-        "summary": "Import XML Billing Invoice (XXE Vulnerable)",
+        "summary": "Import XML Billing Invoice",
         "requestBody": {
+          "required": true,
           "content": {
             "application/xml": {
               "schema": { "type": "string" }
@@ -184,4 +206,3 @@
     }
   }
 }
-

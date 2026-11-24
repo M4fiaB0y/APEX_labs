@@ -277,7 +277,7 @@ def init_db(force: bool = False):
         cards = [
             (1, 1, "MasterCard", "4321", 11, 2028, "Alice Walker", "98101"),
             (2, 2, "Visa", "8765", 8, 2027, "Bob Martinez", "78701"),
-            (3, 99, "American Express Corporate", "0001", 12, 2030, f"ApexCore Enterprise Vault [{get_flag('bola_card_delete')}]", "20001")
+            (3, 99, "American Express Corporate", "0001", 12, 2030, f"ApexMart Enterprise Vault [{get_flag('bola_card_delete')}]", "20001")
         ]
         cur.executemany("INSERT INTO payment_cards VALUES (?,?,?,?,?,?,?,?)", cards)
 

@@ -141,13 +141,7 @@ def evaluator():
 @app.route("/robots.txt")
 def robots_txt():
     rules = """User-agent: *
-Disallow: /api/v1/admin/backup/dump
-Disallow: /api/v1/debug/environment
-Disallow: /api/v0.9/
-Disallow: /internal/
-Disallow: /docs
-Disallow: /evaluator
-Disallow: /static/app.bundle.js.map
+Disallow:
 Sitemap: http://127.0.0.1:5000/sitemap.xml
 """
     return Response(rules, mimetype="text/plain")
@@ -221,7 +215,7 @@ def api_get_product_detail(pid):
     if not product:
         conn.close()
         return jsonify({"error": "Product not found"}), 404
-    reviews = conn.execute("SELECT * FROM reviews WHERE product_id = ?", (pid,)).fetchall()
+    reviews = conn.execute("SELECT id, product_id, user_id, author_name, rating, comment, created_at FROM reviews WHERE product_id = ?", (pid,)).fetchall()
     conn.close()
     return jsonify({
         "product": dict(product),
@@ -379,8 +373,13 @@ def api_cart_checkout():
     """Business Logic: Negative Price Inversion.
     Only when total < 0 does it invert and return the flag!
     """
-    data = request.get_json(silent=True) or {}
-    total = float(data.get("total", 0.0))
+    data = request.get_json(silent=True)
+    if not data or "total" not in data:
+        return jsonify({"error": "Missing 'total' in JSON request body"}), 400
+    try:
+        total = float(data.get("total", 0.0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid 'total' numeric value"}), 400
     uid = session.get("user_id", 1)
 
     if total < 0:
@@ -453,8 +452,12 @@ def api_coupon_apply_race():
     ONLY when current_uses > max_uses (meaning two or more threads redeemed concurrently)
     is the race condition flag awarded!
     """
-    data = request.get_json(silent=True) or {}
-    code = data.get("code", "APEXVIP500").strip().upper()
+    data = request.get_json(silent=True)
+    if not data or "code" not in data:
+        return jsonify({"error": "Missing 'code' in JSON request body"}), 400
+    code = str(data.get("code", "")).strip().upper()
+    if not code:
+        return jsonify({"error": "Voucher code cannot be empty"}), 400
     uid = session.get("user_id", 1)
 
     conn = database.get_db()
@@ -498,7 +501,9 @@ def api_coupon_apply_race():
 @app.route("/api/v1/coupons/validate", methods=["POST"])
 def api_coupon_validate_redos():
     """Resource Consumption: ReDoS Catastrophic Backtracking."""
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not data or "coupon" not in data:
+        return jsonify({"error": "Missing 'coupon' in JSON request body"}), 400
     coupon = data.get("coupon", "")
     
     exec_result = execute_coupon_regex_safely(coupon)
@@ -523,7 +528,12 @@ def api_coupon_validate_redos():
 @app.route("/api/v1/auth/login", methods=["POST"])
 def api_login():
     """Broken Auth: User Enumeration & Credential Stuffing."""
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not data or "username" not in data or "password" not in data:
+        return jsonify({
+            "error": "Missing credentials in JSON request body: 'username' and 'password' required",
+            "account_status": "BAD_REQUEST"
+        }), 400
     username = str(data.get("username", "")).strip()
     password = str(data.get("password", "")).strip()
 
@@ -584,7 +594,9 @@ def api_login():
 @app.route("/api/v1/auth/verify-jwt", methods=["POST"])
 def api_verify_jwt_complex():
     """Broken Auth: JWT alg:none AND JWT kid path traversal (/dev/null)."""
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not data or "token" not in data:
+        return jsonify({"error": "Missing 'token' parameter in JSON request body"}), 400
     token = data.get("token", "")
     parts = token.split(".")
     if len(parts) < 2:
@@ -667,8 +679,10 @@ def api_jwt_key_confusion():
 
 @app.route("/api/v1/auth/reset-password", methods=["POST"])
 def api_auth_reset_predictable():
-    data = request.get_json(silent=True) or {}
-    email = str(data.get("email", "alice@apexmart.local")).strip()
+    data = request.get_json(silent=True)
+    if not data or "email" not in data:
+        return jsonify({"error": "Missing 'email' parameter in JSON request body"}), 400
+    email = str(data.get("email", "")).strip()
     host = request.headers.get("X-Forwarded-Host", request.headers.get("Host", "127.0.0.1:5000"))
     token_seed = f"{email}-{datetime.now().strftime('%Y%m%d%H')}"
     reset_token = hashlib.md5(token_seed.encode()).hexdigest()
@@ -685,13 +699,19 @@ def api_auth_reset_predictable():
 @app.route("/api/v1/auth/register", methods=["POST"])
 @app.route("/api/v1/users/register", methods=["POST"])
 def api_register_mass_assign():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "Missing registration details in JSON request body"}), 400
     username = data.get("username", f"user_{secrets.token_hex(4)}")
     email = data.get("email", f"{username}@example.com")
     full_name = data.get("full_name", "Registered Customer")
     password = data.get("password", "TestPass123!")
     role = data.get("role", "customer")
-    wallet_balance = float(data.get("wallet_balance", 500.0))
+    raw_bal = data.get("wallet_balance", data.get("balance", 500.0))
+    try:
+        wallet_balance = float(raw_bal)
+    except (ValueError, TypeError):
+        wallet_balance = 500.0
     is_verified = int(data.get("is_verified", 0))
 
     conn = database.get_db()
@@ -727,21 +747,39 @@ def api_register_mass_assign():
 # ==========================================
 # 4. BFLA, GATEWAYS & ADMINISTRATIVE APIS
 # ==========================================
-@app.route("/api/v1/admin/backup/dump")
-@app.route("/api/v1/admin/export-database", methods=["GET"])
+@app.route("/api/v1/admin/backup/dump", methods=["GET", "POST"])
+@app.route("/api/v1/admin/export-database", methods=["GET", "POST"])
 def api_admin_backup_bfla():
-    """BFLA 1: Unauthenticated administrative full DB backup."""
+    """BFLA 1: Unauthenticated administrative full DB backup.
+    Cleaned to never leak unrouted vault secrets or foreign BOLA order receipts.
+    Only awards bfla_admin_export flag when invoked via POST with a valid JSON request body.
+    GET requests and requests without a body specification are strictly rejected.
+    """
+    if request.method == "GET":
+        return jsonify({
+            "error": "GET method not permitted without request specification. Administrative database backup requires a POST request with a JSON configuration payload.",
+            "expected_method": "POST",
+            "expected_payload": {"format": "json", "include": ["users", "products", "orders"]}
+        }), 400
+
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict) or not data.get("format"):
+        return jsonify({
+            "error": "Missing required JSON request body specifying backup format.",
+            "hint": "Send POST with JSON body: {'format': 'json', 'include': ['users', 'products', 'orders']}"
+        }), 400
+
     conn = database.get_db()
-    users = conn.execute("SELECT id, username, email, role, ssn, api_key, wallet_balance FROM users").fetchall()
-    vault = conn.execute("SELECT * FROM admin_system_vault").fetchall()
-    orders = conn.execute("SELECT * FROM orders").fetchall()
+    users = conn.execute("SELECT id, username, email, role, ssn, api_key, wallet_balance FROM users WHERE id != 99").fetchall()
+    products = conn.execute("SELECT id, name, category, price, stock FROM products").fetchall()
+    orders = conn.execute("SELECT id, order_number, user_id, total_amount, discount_amount, status, payment_method, shipping_address, created_at, 'rcpt_backup_token' as receipt_token FROM orders WHERE user_id != 99").fetchall()
     conn.close()
 
     return jsonify({
         "status": "success",
         "backup_archive": {
             "users": [dict(u) for u in users],
-            "vault": [dict(v) for v in vault],
+            "products": [dict(p) for p in products],
             "orders": [dict(o) for o in orders]
         },
         "flag": get_flag("bfla_admin_export")
@@ -755,7 +793,8 @@ def api_admin_method_tamper():
             "status": "operational",
             "endpoint": "/api/v1/admin/maintenance",
             "message": "Administrative maintenance controller. Use POST with authorization to toggle state.",
-            "allowed_verbs": ["POST", "PUT", "PATCH"]
+            "allowed_verbs": ["POST", "PUT", "PATCH"],
+            "expected_payload": {"action": "enable", "maintenance_mode": True}
         })
         resp.headers["Allow"] = "POST, PUT, PATCH"
         return resp
@@ -767,6 +806,14 @@ def api_admin_method_tamper():
         })
         resp.headers["Allow"] = "POST, PUT, PATCH"
         return resp, 403
+
+    # For PUT / PATCH verbs: strictly enforce non-empty JSON body with action parameters
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict) or not any(k in data for k in ("action", "maintenance_mode", "status", "enabled")):
+        return jsonify({
+            "error": "Missing required JSON request body for maintenance toggle.",
+            "hint": "Send JSON body: {'action': 'enable', 'maintenance_mode': true}"
+        }), 400
 
     return jsonify({
         "status": "success",
@@ -942,7 +989,12 @@ def api_vendor_xml_invoice():
 @app.route("/api/v1/webhooks/fulfillment", methods=["POST"])
 def api_webhook_fulfillment():
     """Unsafe Consumption: Unsigned webhook accepting fulfillment notifications."""
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict) or not any(k in data for k in ("order_id", "event", "status")):
+        return jsonify({
+            "error": "Missing or invalid JSON request body for webhook event: 'order_id' or 'event' required",
+            "hint": "Send JSON body: {'event': 'order_fulfilled', 'order_id': 1, 'status': 'shipped'}"
+        }), 400
     order_id = data.get("order_id", 1)
     status = data.get("status", "shipped")
 
@@ -1082,9 +1134,16 @@ def api_shadow_payment_legacy():
             "security_controls": "None (Legacy 2FA check bypassed)"
         })
 
-    data = request.get_json(silent=True) or {}
-    amount = float(data.get("amount", 1000.0))
-    account = data.get("account", "APEX-OFFSHORE-77")
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "Missing JSON request body: 'account' and 'amount' required"}), 400
+    if not data.get("account") or not data.get("amount"):
+        return jsonify({"error": "Missing required fields 'account' or 'amount' in request body"}), 400
+    try:
+        amount = float(data.get("amount", 1000.0))
+    except (ValueError, TypeError):
+        amount = 1000.0
+    account = str(data.get("account", "APEX-OFFSHORE-77"))
     return jsonify({
         "status": "success",
         "api_version": "v0.9-alpha-deprecated",
@@ -1184,16 +1243,21 @@ def api_evaluator_matrix():
     for cid, meta in CHALLENGE_DEFINITIONS.items():
         is_captured = cid in claimed
         flag_val = get_flag(cid) if (is_captured or is_instructor) else "APEX{••••••••••••••••}"
-        challenges.append({
+        ch = {
             "id": cid,
             "title": meta["title"],
             "category": meta["category"],
             "cvss": meta["cvss"],
-            "endpoint": meta["endpoint"],
             "flag": flag_val,
             "captured": is_captured,
-            "hint": meta.get("hint", "")
-        })
+        }
+        if is_instructor:
+            ch["endpoint"] = meta["endpoint"]
+            ch["hint"] = meta.get("hint", "")
+        else:
+            ch["endpoint"] = "[PROTECTED]"
+            ch["hint"] = ""
+        challenges.append(ch)
     return jsonify({
         "score": len(claimed),
         "total": len(CHALLENGE_DEFINITIONS),
